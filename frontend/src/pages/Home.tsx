@@ -202,8 +202,6 @@ export default function Home() {
         </section>
       )}
 
-      <FaqSection />
-
       {/* CTA */}
       <section className="section" style={{ background: 'var(--color-green)' }}>
         <div className="container text-center">
@@ -218,6 +216,8 @@ export default function Home() {
           </Link>
         </div>
       </section>
+
+      <FaqSection />
     </>
   );
 }
