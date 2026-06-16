@@ -1,27 +1,43 @@
-# QamQor — Благотворительный фонд
+# QamQor — Қайырымдылық қоры
 
-## Запуск
+## Деректер қоры (БД)
 
-### Backend
+Жобада **SQLite** қолданылады (`better-sqlite3` драйвері арқылы). Бөлек дерекқор серверін орнатудың қажеті жоқ — бүкіл база бір файлда сақталады: `backend/qamqor.db`.
+
+Базаны бөлек қосудың немесе баптаудың қажеті жоқ: бэкенд алғаш іске қосылғанда барлық кесте (8 кесте) мен `admin` тіркелгісі автоматты түрде құрылады. Бұл логика `backend/src/db/database.js` файлындағы `initDb()` функциясында орындалады.
+
+Базаны нөлден бастағыңыз келсе — `backend/qamqor.db` файлын өшіріңіз, ол серверді қайта қосқанда жаңадан құрылады.
+
+## Іске қосу
+
+Алдымен **бэкендті**, содан кейін **фронтендті** іске қосыңыз (екі бөлек терминалда). Node.js 18+ орнатылған болуы керек.
+
+### 1. Бэкенд (сервер)
 ```bash
 cd backend
 npm install
 npm run dev
-# http://localhost:3001
+# Сервер: http://localhost:5002
 ```
 
-### Frontend
+### 2. Фронтенд (сайт)
 ```bash
 cd frontend
 npm install
 npm run dev
-# http://localhost:3000
+# Сайт: http://localhost:3000
 ```
 
-## Данные для входа в админ-панель
-- Логин: `admin`
-- Пароль: `admin123`
+`npm install` тек алғашқы рет қажет, кейін бірден `npm run dev` жеткілікті.
 
-## Стек
-- **Frontend:** React 18, TypeScript, Vite, Tailwind CSS
-- **Backend:** Node.js, Express, SQLite (better-sqlite3), JWT
+## Кіру
+
+- Сайт: http://localhost:3000
+- Әкімшілік панель: http://localhost:3000/admin/login
+  - Логин: `admin`
+  - Пароль: `admin123`
+
+## Технологиялық стек
+
+- **Фронтенд:** React 18, TypeScript, Vite, Tailwind CSS
+- **Бэкенд:** Node.js, Express, SQLite (better-sqlite3), JWT, bcrypt, multer
