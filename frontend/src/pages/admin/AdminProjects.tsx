@@ -4,7 +4,7 @@ import ImageInput from '../../components/ImageInput';
 import { projectsApi, uploadImage } from '../../api';
 import type { Project } from '../../types';
 
-const EMPTY = { title: '', description: '', status: 'active', start_date: '', beneficiaries: 0, image_url: '' };
+const EMPTY = { title: '', description: '', status: 'active', start_date: '', end_date: '', beneficiaries: 0, image_url: '' };
 
 export default function AdminProjects() {
   const [items, setItems] = useState<Project[]>([]);
@@ -13,6 +13,7 @@ export default function AdminProjects() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   const load = () => projectsApi.getAll().then((r) => setItems(r.data));
   useEffect(() => { load(); }, []);
@@ -23,7 +24,7 @@ export default function AdminProjects() {
   function openCreate() { setEditing(null); setForm(EMPTY); setImageFile(null); setShowForm(true); }
   function openEdit(item: Project) {
     setEditing(item);
-    setForm({ title: item.title, description: item.description, status: item.status, start_date: item.start_date ?? '', beneficiaries: item.beneficiaries, image_url: item.image_url ?? '' });
+    setForm({ title: item.title, description: item.description, status: item.status, start_date: item.start_date ?? '', end_date: item.end_date ?? '', beneficiaries: item.beneficiaries, image_url: item.image_url ?? '' });
     setImageFile(null);
     setShowForm(true);
   }
@@ -31,23 +32,33 @@ export default function AdminProjects() {
   async function save(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-    let image_url = form.image_url;
-    if (imageFile) {
-      image_url = await uploadImage(imageFile);
-    } else if (!image_url && editing?.image_url) {
-      image_url = editing.image_url;
+    setSaveError('');
+    try {
+      let image_url = form.image_url;
+      if (imageFile) {
+        image_url = await uploadImage(imageFile);
+      } else if (!image_url && editing?.image_url) {
+        image_url = editing.image_url;
+      }
+      const data = { ...form, image_url };
+      editing ? await projectsApi.update(editing.id, data) : await projectsApi.create(data);
+      setShowForm(false);
+      load();
+    } catch {
+      setSaveError('Сақтау кезінде қате шықты. Қайталап көріңіз.');
+    } finally {
+      setSaving(false);
     }
-    const data = { ...form, image_url };
-    editing ? await projectsApi.update(editing.id, data) : await projectsApi.create(data);
-    setSaving(false);
-    setShowForm(false);
-    load();
   }
 
   async function del(id: number) {
     if (!confirm('Өшіру?')) return;
-    await projectsApi.delete(id);
-    load();
+    try {
+      await projectsApi.delete(id);
+      load();
+    } catch {
+      alert('Жою кезінде қате шықты.');
+    }
   }
 
   if (showForm) return (
@@ -71,6 +82,7 @@ export default function AdminProjects() {
             </div>
             <div><label className="label">Басталу күні</label><input className="field" type="date" value={form.start_date} onChange={set('start_date')} /></div>
           </div>
+          <div><label className="label">Аяқталу күні</label><input className="field" type="date" value={form.end_date} onChange={set('end_date')} /></div>
           <div><label className="label">Қамтылған адамдар</label><input className="field" type="number" min={0} value={form.beneficiaries} onChange={set('beneficiaries')} /></div>
           <div>
             <label className="label">Сурет</label>
@@ -80,6 +92,7 @@ export default function AdminProjects() {
               onUrlChange={(url) => setForm((p) => ({ ...p, image_url: url }))}
             />
           </div>
+          {saveError && <p className="text-red-500 text-sm">{saveError}</p>}
           <div className="flex gap-3 pt-2">
             <button className="btn-primary disabled:opacity-50" disabled={saving}>{saving ? 'Сақталуда...' : 'Сақтау'}</button>
             <button type="button" className="btn-ghost" onClick={() => setShowForm(false)}>Бас тарту</button>

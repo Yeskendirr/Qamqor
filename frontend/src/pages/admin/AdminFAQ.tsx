@@ -11,6 +11,7 @@ export default function AdminFAQ() {
   const [form, setForm] = useState(EMPTY);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   const load = () => faqApi.getAll().then((r) => setItems(r.data));
   useEffect(() => { load(); }, []);
@@ -28,16 +29,26 @@ export default function AdminFAQ() {
   async function save(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-    editing ? await faqApi.update(editing.id, form) : await faqApi.create(form);
-    setSaving(false);
-    setShowForm(false);
-    load();
+    setSaveError('');
+    try {
+      editing ? await faqApi.update(editing.id, form) : await faqApi.create(form);
+      setShowForm(false);
+      load();
+    } catch {
+      setSaveError('Сақтау кезінде қате шықты. Қайталап көріңіз.');
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function del(id: number) {
     if (!confirm('Ошіру?')) return;
-    await faqApi.delete(id);
-    load();
+    try {
+      await faqApi.delete(id);
+      load();
+    } catch {
+      alert('Жою кезінде қате шықты.');
+    }
   }
 
   if (showForm) return (
@@ -51,6 +62,7 @@ export default function AdminFAQ() {
           <div><label className="label">Сурак *</label><input className="field" required value={form.question} onChange={set('question')} /></div>
           <div><label className="label">Жауап *</label><textarea className="field resize-none" rows={5} required value={form.answer} onChange={set('answer')} /></div>
           <div><label className="label">Ретті</label><input className="field" type="number" value={form.sort_order} onChange={set('sort_order')} /></div>
+          {saveError && <p className="text-red-500 text-sm">{saveError}</p>}
           <div className="flex gap-3 pt-2">
             <button className="btn-primary disabled:opacity-50" disabled={saving}>{saving ? 'Сакталуда...' : 'Сактау'}</button>
             <button type="button" className="btn-ghost" onClick={() => setShowForm(false)}>Бас тарту</button>

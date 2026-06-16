@@ -13,6 +13,7 @@ export default function AdminNews() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   const load = () => newsApi.getAllAdmin().then((r) => setItems(r.data));
   useEffect(() => { load(); }, []);
@@ -31,23 +32,33 @@ export default function AdminNews() {
   async function save(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-    let image_url = form.image_url;
-    if (imageFile) {
-      image_url = await uploadImage(imageFile);
-    } else if (!image_url && editing?.image_url) {
-      image_url = editing.image_url;
+    setSaveError('');
+    try {
+      let image_url = form.image_url;
+      if (imageFile) {
+        image_url = await uploadImage(imageFile);
+      } else if (!image_url && editing?.image_url) {
+        image_url = editing.image_url;
+      }
+      const data = { ...form, image_url };
+      editing ? await newsApi.update(editing.id, data) : await newsApi.create(data);
+      setShowForm(false);
+      load();
+    } catch {
+      setSaveError('Сақтау кезінде қате шықты. Қайталап көріңіз.');
+    } finally {
+      setSaving(false);
     }
-    const data = { ...form, image_url };
-    editing ? await newsApi.update(editing.id, data) : await newsApi.create(data);
-    setSaving(false);
-    setShowForm(false);
-    load();
   }
 
   async function del(id: number) {
     if (!confirm('Өшіру керек пе?')) return;
-    await newsApi.delete(id);
-    load();
+    try {
+      await newsApi.delete(id);
+      load();
+    } catch {
+      alert('Жою кезінде қате шықты.');
+    }
   }
 
   if (showForm) return (
@@ -73,6 +84,7 @@ export default function AdminNews() {
             <input type="checkbox" checked={form.is_published === 1} onChange={(e) => setForm((p) => ({ ...p, is_published: e.target.checked ? 1 : 0 }))} />
             Жариялау
           </label>
+          {saveError && <p className="text-red-500 text-sm">{saveError}</p>}
           <div className="flex gap-3 pt-2">
             <button className="btn-primary disabled:opacity-50" disabled={saving}>{saving ? 'Сақталуда...' : 'Сақтау'}</button>
             <button type="button" className="btn-ghost" onClick={() => setShowForm(false)}>Бас тарту</button>
