@@ -1,43 +1,45 @@
-# QamQor — Қайырымдылық қоры
+# QamQor — Charity Foundation
 
-## Деректер қоры (БД)
+## Database
 
-Жобада **SQLite** қолданылады (`better-sqlite3` драйвері арқылы). Бөлек дерекқор серверін орнатудың қажеті жоқ — бүкіл база бір файлда сақталады: `backend/qamqor.db`.
+The project uses **SQLite** (`better-sqlite3` driver). There is no need to install a separate database server — the entire database is stored in a single file: `backend/qamqor.db`.
 
-Базаны бөлек қосудың немесе баптаудың қажеті жоқ: бэкенд алғаш іске қосылғанда барлық кесте (8 кесте) мен `admin` тіркелгісі автоматты түрде құрылады. Бұл логика `backend/src/db/database.js` файлындағы `initDb()` функциясында орындалады.
+There is no need to connect or configure the database separately: when the backend is started for the first time, all tables (8 tables) and the `admin` account are created automatically. This logic is handled by the `initDb()` function in `backend/src/db/database.js`.
 
-Базаны нөлден бастағыңыз келсе — `backend/qamqor.db` файлын өшіріңіз, ол серверді қайта қосқанда жаңадан құрылады.
+If you want to start the database from scratch, delete the `backend/qamqor.db` file. It will be recreated automatically the next time the server starts.
 
-## Іске қосу
+## Running the Project
 
-Алдымен **бэкендті**, содан кейін **фронтендті** іске қосыңыз (екі бөлек терминалда). Node.js 18+ орнатылған болуы керек.
+First, start the **backend**, then start the **frontend** (in two separate terminals). Node.js 18+ must be installed.
 
-### 1. Бэкенд (сервер)
+### 1. Backend (Server)
+
 ```bash
 cd backend
 npm install
 npm run dev
-# Сервер: http://localhost:5002
+# Server: http://localhost:5002
 ```
 
-### 2. Фронтенд (сайт)
+### 2. Frontend (Website)
+
 ```bash
 cd frontend
 npm install
 npm run dev
-# Сайт: http://localhost:3000
+# Website: http://localhost:3000
 ```
 
-`npm install` тек алғашқы рет қажет, кейін бірден `npm run dev` жеткілікті.
+`npm install` is only required the first time. After that, you can simply run `npm run dev`.
 
-## Кіру
+## Login
 
-- Сайт: http://localhost:3000
-- Әкімшілік панель: http://localhost:3000/admin/login
-  - Логин: `admin`
-  - Пароль: `admin123`
+- Website: http://localhost:3000
+- Admin Panel: http://localhost:3000/admin/login
+  - Username: `admin`
+  - Password: `admin123`
 
-## Технологиялық стек
+## Tech Stack
 
-- **Фронтенд:** React 18, TypeScript, Vite, Tailwind CSS
-- **Бэкенд:** Node.js, Express, SQLite (better-sqlite3), JWT, bcrypt, multer
+- **Frontend:** React 18, TypeScript, Vite, Tailwind CSS
+- **Backend:** Node.js, Express, SQLite (`better-sqlite3`), JWT, bcrypt, multer
